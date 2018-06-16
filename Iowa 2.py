@@ -26,7 +26,7 @@ def get_min_mae_and_best_leaf_node(predictors_train, predictors_val, targ_train,
             min_mae = mae
             best_leaf_node = elt
     return min_mae, best_leaf_node
-    
+
 #Reading Data
 iowa_data = pd.read_csv("Iowa Housing Prices.csv") 
 test = pd.read_csv("test.csv")
