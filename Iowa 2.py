@@ -8,37 +8,35 @@ Created on Tue Jun 12 14:11:13 2018
 
 import pandas as pd
 import numpy as np
-
-#MAE
 from sklearn.metrics import mean_absolute_error
 from sklearn.ensemble import RandomForestRegressor
 
-def get_best_leaf_node(pred_train, pred_val, targ_train, targ_val):
+def get_best_leaf_node(train_X, test_X, train_y, test_y):
     """
     Input:
-        pred_train/val: training data from train_test_split
-        targ_train/val: testing data from train_test_split
+        train_X/y: training data 
+        test_X/y: testing data
     Output: int, Best Leaf Node
     """
-    min_mae = targ_train.iloc[0]
+    min_mae = train_y.iloc[0]
     best_leaf_node = 0
     for elt in range(2,1000,10):
         mae = 0
-        model = RandomForestRegressor(max_leaf_nodes=elt, random_state=0)
-        model.fit(pred_train, targ_train)
-        pred_val = model.predict(pred_val)
-        mae = mean_absolute_error(targ_val, pred_val)
+        mae = get_mae(train_X, test_X, train_y, test_y, leaf_node = elt)
         if mae < min_mae:
             min_mae = mae
             best_leaf_node = elt
     return best_leaf_node
 
-def get_mae(train_X, test_X, train_y, test_y):
+def get_mae(train_X, test_X, train_y, test_y, leaf_node= None):
     """
-    Input: Internal training and testing data
+    Input: 
+        train_X/y: training data
+        test_X/y: testing data 
+        leaf_node: int, optional. Consider get_best_leaf_node
     Output: MAE
     """
-    model = RandomForestRegressor(random_state=0)
+    model = RandomForestRegressor(max_leaf_nodes = leaf_node, random_state=0)
     model.fit(train_X, train_y)
     pred_y = model.predict(test_X)
     mae = mean_absolute_error(test_y, pred_y)
@@ -75,6 +73,8 @@ train_X, test_X, train_y, test_y = train_test_split(X, y,random_state = 0)
 
 #testing get_mae function
 mae = get_mae(train_X, test_X, train_y, test_y)
+best_leaf_node = get_best_leaf_node(train_X, test_X, train_y, test_y)
+
 
 """Archive
 # Evaluating MAE
