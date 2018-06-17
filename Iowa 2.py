@@ -80,7 +80,7 @@ train_X, test_X, train_y, test_y = train_test_split(X, y,random_state = 0)
 #testing get_mae function
 mae = get_mae(train_X, test_X, train_y, test_y, max_leaf_nodes = 82)
 best_leaf_nodes = get_best_leaf_nodes(train_X, test_X, train_y, test_y)
-test_csv(true_test, X, true_test_X, y, "iowa_submission2", max_leaf_nodes = best_leaf_nodes)
+test_csv(true_test, X, true_test_X, y, "iowa_submission2.csv", max_leaf_nodes = best_leaf_nodes)
 
 """Archive
 # Evaluating MAE
