@@ -5,13 +5,18 @@ Created on Tue Jun 12 14:11:13 2018
 
 @author: larrylaw
 """
+"""
+RESULTS:
+min_mae: 28642
+best_leaf_node: 82
+"""
 
 import pandas as pd
 import numpy as np
 from sklearn.metrics import mean_absolute_error
 from sklearn.ensemble import RandomForestRegressor
 
-def get_best_leaf_node(train_X, test_X, train_y, test_y):
+def get_best_leaf_nodes(train_X, test_X, train_y, test_y):
     """
     Input:
         train_X/y: training data 
@@ -19,44 +24,44 @@ def get_best_leaf_node(train_X, test_X, train_y, test_y):
     Output: int, Best Leaf Node
     """
     min_mae = train_y.iloc[0]
-    best_leaf_node = 0
+    best_leaf_nodes = 0
     for elt in range(2,1000,10):
         mae = 0
-        mae = get_mae(train_X, test_X, train_y, test_y, leaf_node = elt)
+        mae = get_mae(train_X, test_X, train_y, test_y, max_leaf_nodes = elt)
         if mae < min_mae:
             min_mae = mae
-            best_leaf_node = elt
-    return best_leaf_node
+            best_leaf_nodes = elt
+    return best_leaf_nodes
 
-def get_mae(train_X, test_X, train_y, test_y, leaf_node= None):
+def get_mae(train_X, test_X, train_y, test_y, max_leaf_nodes = None):
     """
     Input: 
         train_X/y: training data
         test_X/y: testing data 
-        leaf_node: int, optional. Consider get_best_leaf_node
+        max_leaf_nodes: int, optional for RandomTreeRegressor. Consider get_best_leaf_nodes
     Output: MAE
     """
-    model = RandomForestRegressor(max_leaf_nodes = leaf_node, random_state=0)
+    model = RandomForestRegressor(max_leaf_nodes = max_leaf_nodes, random_state=0)
     model.fit(train_X, train_y)
     pred_y = model.predict(test_X)
     mae = mean_absolute_error(test_y, pred_y)
     return mae
 
-def predict_test(best_leaf_node, pred_train, pred_val, targ_train, targ_val, file_name):
+def test_csv(train_X, test_X, train_y, file_name, max_leaf_nodes = None):
     """
     Input:
-        best_leaf_node: int, from get_best_leaf_node function
-        pred_train/val: Use entire of training data (not the train_test_split data)
-        targ_train/val: test file
+        X: Use entire of training data (not the train_test_split data)
+        y: Testing data
         file_name: string, name of submission
+        leaf_node: int, optional. Consider get_best_leaf_node function
     Output: Generates predicted results of test in csv format
     """
-    model = RandomForestRegressor(max_leaf_nodes=best_leaf_node)
-    model.fit(pred_train, pred_val) #insert all data for better prediction values
-    targ_pred = model.predict(targ_train)
-    targ_df = pd.DataFrame({'Id': test.Id, 'SalePrice': targ_pred})
-    targ_df_csv = targ_df.to_csv(file_name, index = False)
-    return targ_df_csv
+    model = RandomForestRegressor(max_leaf_nodes = max_leaf_nodes)
+    model.fit(train_X, train_y) #insert all data for better prediction values
+    test_y = model.predict(test_X)
+    test_df = pd.DataFrame({'Id': test.Id, 'SalePrice': test_y})
+    test_csv = test_df.to_csv(file_name, index = False)
+    return test_csv
 
 #Reading Data
 iowa_data = pd.read_csv("Iowa Housing Prices.csv") 
@@ -66,15 +71,16 @@ test = pd.read_csv("test.csv")
 iowa_pred = ["LotArea", "1stFlrSF", "2ndFlrSF", "FullBath", "BedroomAbvGr", "TotRmsAbvGrd"]
 X = iowa_data[iowa_pred]
 y = iowa_data.SalePrice
+test
 
 #train_test_split
 from sklearn.model_selection import train_test_split
 train_X, test_X, train_y, test_y = train_test_split(X, y,random_state = 0)
 
 #testing get_mae function
-mae = get_mae(train_X, test_X, train_y, test_y)
-best_leaf_node = get_best_leaf_node(train_X, test_X, train_y, test_y)
-
+mae = get_mae(train_X, test_X, train_y, test_y, max_leaf_nodes = 82)
+best_leaf_nodes = get_best_leaf_nodes(train_X, test_X, train_y, test_y)
+test_csv(X,test)
 
 """Archive
 # Evaluating MAE
