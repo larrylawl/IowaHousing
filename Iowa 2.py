@@ -47,9 +47,10 @@ def get_mae(train_X, test_X, train_y, test_y, max_leaf_nodes = None):
     mae = mean_absolute_error(test_y, pred_y)
     return mae
 
-def test_csv(train_X, test_X, train_y, file_name, max_leaf_nodes = None):
+def test_csv(true_test, train_X, test_X, train_y, file_name, max_leaf_nodes = None):
     """
     Input:
+        true_test: Original test data. To obtain test ID
         X: Use entire of training data (not the train_test_split data)
         y: Testing data
         file_name: string, name of submission
@@ -59,9 +60,8 @@ def test_csv(train_X, test_X, train_y, file_name, max_leaf_nodes = None):
     model = RandomForestRegressor(max_leaf_nodes = max_leaf_nodes, random_state=0)
     model.fit(train_X, train_y) #insert all data for better prediction values
     test_y = model.predict(test_X)
-    test_df = pd.DataFrame({'Id': test.Id, 'SalePrice': test_y})
-    test_csv = test_df.to_csv(file_name, index = False)
-    return test_csv
+    test_df = pd.DataFrame({'Id': true_test.Id, 'SalePrice': test_y})
+    return test_df.to_csv(file_name, index = False)
 
 #Reading Data
 iowa_data = pd.read_csv("Iowa Housing Prices.csv") 
@@ -80,7 +80,7 @@ train_X, test_X, train_y, test_y = train_test_split(X, y,random_state = 0)
 #testing get_mae function
 mae = get_mae(train_X, test_X, train_y, test_y, max_leaf_nodes = 82)
 best_leaf_nodes = get_best_leaf_nodes(train_X, test_X, train_y, test_y)
-test_csv(X, true_test_X, y, "iowa_submission2", max_leaf_nodes = best_leaf_nodes)
+test_csv(true_test, X, true_test_X, y, "iowa_submission2", max_leaf_nodes = best_leaf_nodes)
 
 """Archive
 # Evaluating MAE
