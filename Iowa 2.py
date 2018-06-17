@@ -56,7 +56,7 @@ def test_csv(train_X, test_X, train_y, file_name, max_leaf_nodes = None):
         leaf_node: int, optional. Consider get_best_leaf_node function
     Output: Generates predicted results of test in csv format
     """
-    model = RandomForestRegressor(max_leaf_nodes = max_leaf_nodes)
+    model = RandomForestRegressor(max_leaf_nodes = max_leaf_nodes, random_state=0)
     model.fit(train_X, train_y) #insert all data for better prediction values
     test_y = model.predict(test_X)
     test_df = pd.DataFrame({'Id': test.Id, 'SalePrice': test_y})
@@ -65,13 +65,13 @@ def test_csv(train_X, test_X, train_y, file_name, max_leaf_nodes = None):
 
 #Reading Data
 iowa_data = pd.read_csv("Iowa Housing Prices.csv") 
-test = pd.read_csv("test.csv")
+true_test = pd.read_csv("test.csv")
 
 #Setting iv and dv
 iowa_pred = ["LotArea", "1stFlrSF", "2ndFlrSF", "FullBath", "BedroomAbvGr", "TotRmsAbvGrd"]
 X = iowa_data[iowa_pred]
 y = iowa_data.SalePrice
-test
+true_test_X = true_test[iowa_pred]
 
 #train_test_split
 from sklearn.model_selection import train_test_split
@@ -80,7 +80,7 @@ train_X, test_X, train_y, test_y = train_test_split(X, y,random_state = 0)
 #testing get_mae function
 mae = get_mae(train_X, test_X, train_y, test_y, max_leaf_nodes = 82)
 best_leaf_nodes = get_best_leaf_nodes(train_X, test_X, train_y, test_y)
-test_csv(X,test)
+test_csv(X, true_test_X, y, "iowa_submission2", max_leaf_nodes = best_leaf_nodes)
 
 """Archive
 # Evaluating MAE
