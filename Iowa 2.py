@@ -45,7 +45,7 @@ train_X, val_X, train_y, val_y = train_test_split(X, y,random_state = 0)
 min_mae, best_leaf_node = get_min_mae_and_best_leaf_node(train_X, val_X, train_y, val_y)
 
 #Predicting test set
-iowa_model = RandomForestRegressor(max_leaf_nodes=best_leaf_node)
+iowa_model = RandomForestRegressor(max_leaf_nodes=best_leaf_node, random_state = 0)
 iowa_model.fit(X, y) #inserted all data for better prediction values
 iowa_preds = iowa_model.predict(test_X)
 iowa_submission = pd.DataFrame({'Id': test.Id, 'SalePrice': iowa_preds})
