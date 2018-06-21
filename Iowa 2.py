@@ -7,8 +7,8 @@ Created on Tue Jun 12 14:11:13 2018
 """
 """
 RESULTS:
-min_mae: 28642
-best_leaf_node: 82
+min_mae: 924.9
+best_leaf_node: ?
 """
 
 import pandas as pd
@@ -87,17 +87,17 @@ iowa_data = pd.read_csv("Iowa Housing Prices.csv")
 true_test = pd.read_csv("test.csv")
 
 #Setting iv and dv
-iowa_pred = ["LotArea", "1stFlrSF", "2ndFlrSF", "FullBath", "BedroomAbvGr", "TotRmsAbvGrd"]
-X = iowa_data[iowa_pred]
+X = impute(iowa_data)
 y = iowa_data.SalePrice
-true_test_X = true_test[iowa_pred]
+
+# true_test_X = true_test[iowa_pred]
 
 #train_test_split
 from sklearn.model_selection import train_test_split
 train_X, test_X, train_y, test_y = train_test_split(X, y,random_state = 0)
 
 #testing get_mae function
-mae = get_mae(train_X, test_X, train_y, test_y, max_leaf_nodes = 82)
+mae = get_mae(train_X, test_X, train_y, test_y)
 best_leaf_nodes = get_best_leaf_nodes(train_X, test_X, train_y, test_y)
 # Producing csv
 # test_csv(true_test, X, true_test_X, y, "iowa_submission2.csv", max_leaf_nodes = best_leaf_nodes)
