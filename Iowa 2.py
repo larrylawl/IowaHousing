@@ -7,7 +7,7 @@ Created on Tue Jun 12 14:11:13 2018
 """
 """
 RESULTS:
-min_mae: 924.9
+min_mae: 906 with impute_extension
 best_leaf_node: ?
 """
 
@@ -31,9 +31,15 @@ def impute(data):
 
 def impute_extension(data):
     """
-    Input:
+    Input: Independent Variable
     Output: Imputed data with cols with missing. Excluded columns with objects
     """
+    data_imputed = impute(data)
+    data = data.select_dtypes(exclude = 'object')
+    cols_with_missing = (col for col in data if data[col].isnull().any())
+    for col in cols_with_missing:
+        data_imputed[col + "was missing"] = data[col].isnull()
+    return data_imputed
 
 def get_best_leaf_nodes(train_X, test_X, train_y, test_y):
     """
@@ -87,7 +93,7 @@ iowa_data = pd.read_csv("Iowa Housing Prices.csv")
 true_test = pd.read_csv("test.csv")
 
 #Setting iv and dv
-X = impute(iowa_data)
+X = impute_extension(iowa_data)
 y = iowa_data.SalePrice
 
 # true_test_X = true_test[iowa_pred]
@@ -98,6 +104,7 @@ train_X, test_X, train_y, test_y = train_test_split(X, y,random_state = 0)
 
 #testing get_mae function
 mae = get_mae(train_X, test_X, train_y, test_y)
+
 best_leaf_nodes = get_best_leaf_nodes(train_X, test_X, train_y, test_y)
 # Producing csv
 # test_csv(true_test, X, true_test_X, y, "iowa_submission2.csv", max_leaf_nodes = best_leaf_nodes)
