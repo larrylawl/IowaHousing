@@ -19,19 +19,15 @@ from sklearn.preprocessing import Imputer
 
 def impute(data):
     """
-    Input:
+    Input: Independent Variable
     Output: Imputed data with cols. Excluded columns with objects
     """
     #converting all int columns to int64 type
-    data_copy = data.copy(deep=True)
-    data_copy = data_copy.select_dtypes(exclude = 'object')
+    data = data.select_dtypes(exclude = 'object')
+    data_columns = data.columns
     data_imputer = Imputer()
-    data_copy = data_imputer.fit_transform(data_copy)
-    data = pd.DataFrame(data_copy, columns = data.columns)
+    data = pd.DataFrame(data_imputer.fit_transform(data), columns = data_columns)
     return data
-
-test_data = impute(iowa_data)
-
 
 def impute_extension(data):
     """
