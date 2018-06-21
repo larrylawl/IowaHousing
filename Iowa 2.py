@@ -15,6 +15,29 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import mean_absolute_error
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import Imputer
+
+def impute(data):
+    """
+    Input:
+    Output: Imputed data with cols. Excluded columns with objects
+    """
+    #converting all int columns to int64 type
+    data_copy = data.copy(deep=True)
+    data_copy = data_copy.select_dtypes(exclude = 'object')
+    data_imputer = Imputer()
+    data_copy = data_imputer.fit_transform(data_copy)
+    data = pd.DataFrame(data_copy, columns = data.columns)
+    return data
+
+test_data = impute(iowa_data)
+
+
+def impute_extension(data):
+    """
+    Input:
+    Output: Imputed data with cols with missing. Excluded columns with objects
+    """
 
 def get_best_leaf_nodes(train_X, test_X, train_y, test_y):
     """
@@ -80,7 +103,9 @@ train_X, test_X, train_y, test_y = train_test_split(X, y,random_state = 0)
 #testing get_mae function
 mae = get_mae(train_X, test_X, train_y, test_y, max_leaf_nodes = 82)
 best_leaf_nodes = get_best_leaf_nodes(train_X, test_X, train_y, test_y)
-test_csv(true_test, X, true_test_X, y, "iowa_submission2.csv", max_leaf_nodes = best_leaf_nodes)
+# Producing csv
+# test_csv(true_test, X, true_test_X, y, "iowa_submission2.csv", max_leaf_nodes = best_leaf_nodes)
+
 
 """Archive
 # Evaluating MAE
