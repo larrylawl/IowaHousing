@@ -63,7 +63,7 @@ def get_best_leaf_nodes(train_X, test_X, train_y, test_y):
     """
     min_mae = train_y.iloc[0]
     best_leaf_nodes = 0
-    for elt in range(2,1000,10):
+    for elt in range(2,1000,50):
         mae = 0
         mae = get_mae(train_X, test_X, train_y, test_y, max_leaf_nodes = elt)
         if mae < min_mae:
@@ -103,7 +103,6 @@ def test_csv(true_test, train_X, test_X, train_y, file_name, max_leaf_nodes = No
 
 #Reading Data
 iowa_data = pd.read_csv("Iowa Housing Prices.csv") 
-true_test = pd.read_csv("test.csv")
 
 #Setting iv and dv
 data_imputed = impute_extension(iowa_data)
@@ -111,21 +110,24 @@ data_OHE = OHE(iowa_data)
 X = data_imputed.join(data_OHE)
 y = iowa_data.SalePrice
 
-# true_test_X = true_test[iowa_pred]
-
 #train_test_split
 from sklearn.model_selection import train_test_split
 train_X, test_X, train_y, test_y = train_test_split(X, y,random_state = 0)
 
-#Align
+#Align training and test data
 train_X, test_X = train_X.align(test_X, join="inner", axis=1)
 
 #testing get_mae function
 mae = get_mae(train_X, test_X, train_y, test_y)
+best_leaf_nodes = get_best_leaf_nodes(train_X, test_X, train_y, test_y)
 
-# best_leaf_nodes = get_best_leaf_nodes(train_X, test_X, train_y, test_y)
-# Producing csv
-# test_csv(true_test, X, true_test_X, y, "iowa_submission2.csv", max_leaf_nodes = best_leaf_nodes)
+#Applying on Test data
+#true_test = pd.read_csv("test.csv")
+#true_data_imputed = impute_extension(true_test)
+#true_data_OHE = OHE(true_test)
+#true_test_X = true_data_imputed.join(true_data_OHE)
+#X, true_test_X = X.align(true_test_X, join="inner", axis = 1)
+#test_csv(true_test, X, true_test_X, y, "iowa_submission2.csv", max_leaf_nodes = best_leaf_nodes)
 
 
 """Archive
