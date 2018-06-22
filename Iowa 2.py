@@ -23,11 +23,11 @@ def impute(data):
     Output: Imputed data with cols. Excluded columns with objects
     """
     #converting all int columns to int64 type
-    data = data.select_dtypes(exclude = 'object')
-    data_columns = data.columns
+    data_int = data.select_dtypes(exclude = 'object')
+    data_columns = data_int.columns
     data_imputer = Imputer()
-    data = pd.DataFrame(data_imputer.fit_transform(data), columns = data_columns)
-    return data
+    data_int = pd.DataFrame(data_imputer.fit_transform(data_int), columns = data_columns)
+    return data_int
 
 def impute_extension(data):
     """
