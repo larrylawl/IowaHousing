@@ -7,7 +7,7 @@ Created on Tue Jun 12 14:11:13 2018
 """
 """
 RESULTS:
-min_mae: 906 with impute_extension
+min_mae: 947.9 with imputer w/ extension and OHE
 best_leaf_node: ?
 """
 
@@ -40,6 +40,19 @@ def impute_extension(data):
     for col in cols_with_missing:
         data_imputed[col + "was missing"] = data[col].isnull()
     return data_imputed
+
+def OHE(data):
+    """
+    Input: Independent Variable
+    Output: OHE data
+    """
+    #test getting dummy var
+    # how to settle na for OHE?
+    # Which cat to reject for OHE?
+    # align both data sets
+    data_object = data.select_dtypes(include = 'object')
+    data_dummies =  pd.get_dummies(data_object, dummy_na = True)
+    return data_dummies
 
 def get_best_leaf_nodes(train_X, test_X, train_y, test_y):
     """
@@ -93,7 +106,9 @@ iowa_data = pd.read_csv("Iowa Housing Prices.csv")
 true_test = pd.read_csv("test.csv")
 
 #Setting iv and dv
-X = impute_extension(iowa_data)
+data_imputed = impute_extension(iowa_data)
+data_OHE = OHE(iowa_data)
+X = data_imputed.join(data_OHE)
 y = iowa_data.SalePrice
 
 # true_test_X = true_test[iowa_pred]
@@ -102,10 +117,13 @@ y = iowa_data.SalePrice
 from sklearn.model_selection import train_test_split
 train_X, test_X, train_y, test_y = train_test_split(X, y,random_state = 0)
 
+#Align
+train_X, test_X = train_X.align(test_X, join="inner", axis=1)
+
 #testing get_mae function
 mae = get_mae(train_X, test_X, train_y, test_y)
 
-best_leaf_nodes = get_best_leaf_nodes(train_X, test_X, train_y, test_y)
+# best_leaf_nodes = get_best_leaf_nodes(train_X, test_X, train_y, test_y)
 # Producing csv
 # test_csv(true_test, X, true_test_X, y, "iowa_submission2.csv", max_leaf_nodes = best_leaf_nodes)
 
