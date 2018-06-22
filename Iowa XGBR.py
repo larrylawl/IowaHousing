@@ -92,7 +92,7 @@ pred_y = XGBR_model.predict(test_X)
 mae = mean_absolute_error(test_y, pred_y)
 
 #Partial Dependence Plot
-#plot_importance(XGBR_model(train_X, test_X, train_y, test_y))
+plot_importance(XGBR_model) #causes error
 
 #Applying on Test data
 #true_test = pd.read_csv("test.csv")
