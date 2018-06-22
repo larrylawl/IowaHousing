@@ -14,9 +14,9 @@ best_leaf_node: ?
 import pandas as pd
 import numpy as np
 from sklearn.metrics import mean_absolute_error
-#from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import Imputer
-from xgboost import XGBRegressor
+from sklearn.ensemble.partial_dependence import plot_partial_dependence
+from xgboost import XGBRegressor, plot_importance
 
 def impute(data):
     """
@@ -65,14 +65,13 @@ def to_csv(true_test, pred_y, file_name):
     y_df = pd.DataFrame({'Id': true_test.Id, 'SalePrice': test_y})
     return y_df.to_csv(file_name, index = False)
 
-def XGBR_pred(train_X, test_X, train_y, test_y):
+def XGBR_model_fit(train_X, test_X, train_y, test_y):
     """
-    Output: Predicted DV based on XGBR model
+    Output: XGBR_fit
     """
     XGBR_model = XGBRegressor(learning_rate=0.05, n_estimators=1000)
     XGBR_model.fit(train_X, train_y, eval_set = [(test_X, test_y)], early_stopping_rounds = 5)
-    pred_y = XGBR_model.predict(test_X)
-    return pred_y
+    return XGBR_model
 
 #Reading Data
 iowa_data = pd.read_csv("Iowa Housing Prices.csv") 
@@ -88,8 +87,12 @@ from sklearn.model_selection import train_test_split
 train_X, test_X, train_y, test_y = train_test_split(X, y,random_state = 0)
 train_X, test_X = train_X.align(test_X, join="inner", axis=1)
 
-pred_y = XGBR_pred(train_X, test_X, train_y, test_y)
+XGBR_model = XGBR_model_fit(train_X, test_X, train_y, test_y)
+pred_y = XGBR_model.predict(test_X)
 mae = mean_absolute_error(test_y, pred_y)
+
+#Partial Dependence Plot
+#plot_importance(XGBR_model(train_X, test_X, train_y, test_y))
 
 #Applying on Test data
 #true_test = pd.read_csv("test.csv")
