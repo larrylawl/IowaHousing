@@ -65,21 +65,12 @@ def to_csv(true_test, pred_y, file_name):
     y_df = pd.DataFrame({'Id': true_test.Id, 'SalePrice': test_y})
     return y_df.to_csv(file_name, index = False)
 
-#def XGBR_pred(train_X, test_X, train_y, test_y):
-#    """
-#    Output: Predicted DV based on XGBR model
-#    """
-#    XGBR_model = XGBRegressor(learning_rate=0.05, n_estimators=1000)
-#    XGBR_model.fit(train_X, train_y, eval_set = [(test_X, test_y)], early_stopping_rounds = 5)
-#    pred_y = XGBR_model.predict(test_X)
-#    return pred_y
-
 def XGBR_pred(train_X, test_X, train_y, test_y):
     """
     Output: Predicted DV based on XGBR model
     """
     XGBR_model = XGBRegressor(learning_rate=0.05, n_estimators=1000)
-    XGBR_model.fit(train_X, train_y)
+    XGBR_model.fit(train_X, train_y, eval_set = [(test_X, test_y)], early_stopping_rounds = 5)
     pred_y = XGBR_model.predict(test_X)
     return pred_y
 
