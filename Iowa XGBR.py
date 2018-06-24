@@ -77,9 +77,10 @@ def XGBR_model_fit(train_X, test_X, train_y, test_y):
 iowa_data = pd.read_csv("Iowa Housing Prices.csv") 
 
 #Setting iv and dv
-data_imputed = impute_extension(iowa_data)
-data_OHE = OHE(iowa_data)
-X = data_imputed.join(data_OHE).drop(labels = "Id", axis = 1)
+X = iowa_data.drop(labels = ["Id", "SalePrice"], axis = 1)
+X_imputed = impute_extension(X)
+X_OHE = OHE(X)
+X = X_imputed.join(X_OHE)
 y = iowa_data.SalePrice
 
 #train_test_split
@@ -92,7 +93,8 @@ pred_y = XGBR_model.predict(test_X)
 mae = mean_absolute_error(test_y, pred_y)
 
 #Partial Dependence Plot
-plot_importance(XGBR_model) #causes error
+plot_importance(XGBR_model, max_num_features = 5)
+
 
 #Applying on Test data
 #true_test = pd.read_csv("test.csv")
