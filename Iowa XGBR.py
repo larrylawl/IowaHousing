@@ -7,7 +7,9 @@ Created on Fri Jun 22 13:25:07 2018
 """
 """
 RESULTS:
-RMSE(Log): 0.13147 using XGBR
+rmse_log: 0.141 using XGBR
+Deprovement: Trying early_stopping_round
+Using: XGBR
 Top 5 Indicators (gain): OveralQual, GarageCars, BsmtQual_Ex
 
 """
@@ -64,16 +66,18 @@ def to_csv(true_test, pred_y, file_name):
     y_df = pd.DataFrame({'Id': true_test.Id, 'SalePrice': test_y})
     return y_df.to_csv(file_name, index = False)
 
-def XGBR_model_fit(train_X, test_X, train_y, test_y):
+def get_best_n_estimator(X,y):
     """
     Output: XGBR_fit
     """
+    #train test split
+    from sklearn.model_selection import train_test_split
+    train_X, test_X, train_y, test_y = train_test_split(X, y,random_state = 0)
+    
+    #fitting
     XGBR_model = XGBRegressor(learning_rate=0.05, n_estimators=1000)
     XGBR_model.fit(train_X, train_y, eval_set = [(test_X, test_y)], early_stopping_rounds = 5, verbose = False)
-    return XGBR_model
-
-def rmse(y_true, y_pred):
-    return np.sqrt(((np.log(y_pred) - np.log(y_true)) ** 2).mean())
+    return XGBR_model.best_iteration
 
 #Reading Data
 iowa_data = pd.read_csv("Iowa Housing Prices.csv") 
@@ -85,18 +89,16 @@ X_OHE = OHE(X)
 X = X_imputed.join(X_OHE)
 y = iowa_data.SalePrice
 
-#train_test_split
-from sklearn.model_selection import train_test_split
-train_X, test_X, train_y, test_y = train_test_split(X, y,random_state = 0)
-train_X, test_X = train_X.align(test_X, join="inner", axis=1)
+#Model
+XGBR_model = XGBRegressor(learning_rate=0.05, n_estimators= get_best_n_estimator(X,y))
 
-XGBR_model = XGBR_model_fit(train_X, test_X, train_y, test_y)
-pred_y = XGBR_model.predict(test_X)
-rmse_result = rmse(test_y, pred_y)
-
+#Cross Validation
+from sklearn.model_selection import cross_val_score
+scores = cross_val_score(XGBR_model, X, y, scoring = "neg_mean_squared_log_error", cv = 5)
+rmse_log_score = np.sqrt(scores.mean()*-1)
 
 #Partial Dependence Plot
-#plot_importance(XGBR_model, importance_type = "gain", max_num_features = 10)
+#plot_importance(XGBR_model.fit(X,y), importance_type = "gain", max_num_features = 10)
 
 
 #Applying on Test data
@@ -107,59 +109,6 @@ rmse_result = rmse(test_y, pred_y)
 #X, true_test_X = X.align(true_test_X, join="inner", axis = 1)
 #test_csv(true_test, X, true_test_X, y, "iowa_submission2.csv", max_leaf_nodes = best_leaf_nodes)
 
-
-"""Archive
-# Evaluating MAE
-for max_leaf_nodes in [5, 50, 500, 5000]:
-    my_mae = get_mae(max_leaf_nodes, train_X, val_X, train_y, val_y)
-    print("Max leaf nodes: %d  \t\t Mean Absolute Error:  %d" %(max_leaf_nodes, my_mae))
-    
-# get predicted prices on validation data
-val_predictions = iowa_model.predict(val_X)
-print(mean_absolute_error(val_y, val_predictions))
-
-#Random Forest    
-from sklearn.ensemble import RandomForestRegressor
-forest_model = RandomForestRegressor()
-forest_model.fit(train_X, train_y)
-iowa_preds = forest_model.predict(val_X)
-print(mean_absolute_error(val_y, iowa_preds))
-
-#Get Min Mae
-def get_min_mae(pred_train, pred_val, targ_train, targ_val):
-    min_mae = targ_train.iloc[0]
-    for max_leaf_nodes in range(1,1000,10):
-        mae = 0
-        model = RandomForestRegressor(max_leaf_nodes=max_leaf_nodes, random_state=0)
-        model.fit(pred_train, targ_train)
-        preds_val = model.predict(pred_val)
-        mae = mean_absolute_error(targ_val, preds_val)
-        if mae < min_mae:
-            min_mae = mae
-    return min_mae
-    
-#Predicting test set
-iowa_model = RandomForestRegressor(max_leaf_nodes=best_leaf_node)
-iowa_model.fit(X, y) #inserted all data for better prediction values
-iowa_preds = iowa_model.predict(test_X)
-iowa_submission = pd.DataFrame({'Id': test.Id, 'SalePrice': iowa_preds})
-iowa_submission.to_csv('iowa_submission.csv', index = False)
-
-#Get min mae and best leaf node
-min_mae, best_leaf_node = get_min_mae_and_best_leaf_node(train_X, val_X, train_y, val_y)
-
-def get_best_leaf_nodes(train_X, test_X, train_y, test_y):
-    Input:
-        train_X/y: training data 
-        test_X/y: testing data
-    Output: int, Best Leaf Node
-    min_mae = train_y.iloc[0]
-    best_leaf_nodes = 0
-    for elt in range(2,1000,50):
-        mae = 0
-        mae = get_mae(train_X, test_X, train_y, test_y, max_leaf_nodes = elt)
-        if mae < min_mae:
-            min_mae = mae
-            best_leaf_nodes = elt
-    return best_leaf_nodes
-"""
+#Train-test-split prediction
+#pred_y = XGBR_model.predict(test_X)
+#rmse_result = rmse(test_y, pred_y)
