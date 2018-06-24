@@ -6,11 +6,12 @@ Created on Fri Jun 22 13:25:07 2018
 @author: larrylaw
 """
 """
-RESULTS:
+Changes: Change algo for producing test prediction
 rmse_log: 0.125 using XGBR
 Improvement: Fitting 100% of data, generating score through cross validation
 Using: XGBR
 Top 5 Indicators (gain): OveralQual, GarageCars, BsmtQual_Ex
+Remarks: Did not use ESR as it worsens results
 
 """
 
@@ -88,12 +89,16 @@ rmse_log_score = np.sqrt(scores.mean()*-1)
 #plot_importance(XGBR_model.fit(X,y), importance_type = "gain", max_num_features = 10)
 
 #Applying on Test data
-test = pd.read_csv("test.csv")
-
 #Data preprocessing
+test = pd.read_csv("test.csv")
 test_X_imputed = impute_extension(test)
 test_X_OHE = OHE(test)
 test_X = test_X_imputed.join(test_X_OHE)
+
+#Align as OHE generates diff no. of columns
+#Inner as it guarantees both has data > more accurate predictions
+X, test_X = X.align(test_X, join="inner", axis = 1) 
+
 
 XGBR_model.fit(X, y)
 test_y_pred = XGBR_model.predict(test_X)
