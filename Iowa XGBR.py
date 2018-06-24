@@ -7,15 +7,14 @@ Created on Fri Jun 22 13:25:07 2018
 """
 """
 RESULTS:
-min_mae: 947.9 with imputer w/ extension and OHE
-best_leaf_node: ?
+RMSE(Log): 0.13147 using XGBR
+Top 5 Indicators (gain): OveralQual, GarageCars, BsmtQual_Ex
+
 """
 
 import pandas as pd
 import numpy as np
-from sklearn.metrics import mean_absolute_error
 from sklearn.preprocessing import Imputer
-from sklearn.ensemble.partial_dependence import plot_partial_dependence
 from xgboost import XGBRegressor, plot_importance
 
 def impute(data):
@@ -70,8 +69,11 @@ def XGBR_model_fit(train_X, test_X, train_y, test_y):
     Output: XGBR_fit
     """
     XGBR_model = XGBRegressor(learning_rate=0.05, n_estimators=1000)
-    XGBR_model.fit(train_X, train_y, eval_set = [(test_X, test_y)], early_stopping_rounds = 5)
+    XGBR_model.fit(train_X, train_y, eval_set = [(test_X, test_y)], early_stopping_rounds = 5, verbose = False)
     return XGBR_model
+
+def rmse(y_true, y_pred):
+    return np.sqrt(((np.log(y_pred) - np.log(y_true)) ** 2).mean())
 
 #Reading Data
 iowa_data = pd.read_csv("Iowa Housing Prices.csv") 
@@ -90,10 +92,11 @@ train_X, test_X = train_X.align(test_X, join="inner", axis=1)
 
 XGBR_model = XGBR_model_fit(train_X, test_X, train_y, test_y)
 pred_y = XGBR_model.predict(test_X)
-mae = mean_absolute_error(test_y, pred_y)
+rmse_result = rmse(test_y, pred_y)
+
 
 #Partial Dependence Plot
-plot_importance(XGBR_model, max_num_features = 5)
+#plot_importance(XGBR_model, importance_type = "gain", max_num_features = 10)
 
 
 #Applying on Test data
