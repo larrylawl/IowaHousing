@@ -1,4 +1,4 @@
-# IowaHousing
+# Iowa House Prices Kaggle Competition
 
 Iowa XGB - RMSE(log): 0.13162 - Top 32%
 
